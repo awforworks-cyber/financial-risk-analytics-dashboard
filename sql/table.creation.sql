@@ -34,3 +34,12 @@ CREATE TABLE dbo.dim_customer (
 );
 GO
 
+-- Dimension: dim_product
+CREATE TABLE dbo.dim_product (
+    product_id         INT           NOT NULL PRIMARY KEY,
+    product_name       VARCHAR(100)  NOT NULL,
+    plan_type          VARCHAR(50)   NOT NULL,  -- Basic, Pro, Enterprise
+    module             VARCHAR(50)   NULL,      -- Core, Analytics, Add-on, etc.
+    base_monthly_price DECIMAL(10,2) NOT NULL
+);
+GO
