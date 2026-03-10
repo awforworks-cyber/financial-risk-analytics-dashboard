@@ -60,3 +60,18 @@ CREATE TABLE dbo.fact_invoices (
     status           VARCHAR(20)   NOT NULL    -- e.g., Paid, Unpaid, Overdue, Written-off
 );
 GO
+
+-- Fact: fact_subscriptions
+-- Grain: one row per subscription snapshot period (e.g., monthly)
+CREATE TABLE dbo.fact_subscriptions (
+    subscription_id   INT           NOT NULL PRIMARY KEY,
+    customer_id       INT           NOT NULL,   -- FK to dim_customer
+    product_id        INT           NOT NULL,   -- FK to dim_product
+    start_date_id     INT           NOT NULL,   -- FK to dim_date (subscription start)
+    end_date_id       INT           NULL,       -- FK to dim_date (subscription end, if ended)
+    billing_frequency VARCHAR(20)   NOT NULL,   -- Monthly, Annual
+    mrr               DECIMAL(12,2) NOT NULL,   -- Monthly Recurring Revenue
+    arr               DECIMAL(12,2) NOT NULL,   -- Annual Recurring Revenue
+    is_active         BIT           NOT NULL    -- 1 = active in this snapshot period
+);
+GO
