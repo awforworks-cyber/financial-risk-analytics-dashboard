@@ -1,10 +1,18 @@
 -- populate_fact_invoices.sql
 -- Populates fact_invoices with synthetic invoice records based on subscriptions
+-- NOTE:
+-- The current database contains ~481k invoice rows because an earlier version
+-- of this script did not enforce a hard cap on generated invoices.
+-- A cap of 200k (@MaxInvoices) is now in place to ensure faster reruns and
+-- to keep the script suitable for demo and teaching purposes.
+-- The existing larger dataset is retained intentionally for more realistic
+-- performance testing and analysis.
 
 -- Clear existing data
 TRUNCATE TABLE dbo.fact_invoices;
 
-DECLARE @InvoiceId INT = 1;
+DECLARE @InvoiceId    INT = 1;
+DECLARE @MaxInvoices  INT = 200000;  -- hard cap to prevent runaway inserts
 
 -- Cursor over subscriptions
 DECLARE subscription_cursor CURSOR FAST_FORWARD FOR
@@ -32,7 +40,7 @@ OPEN subscription_cursor;
 FETCH NEXT FROM subscription_cursor INTO 
     @SubId, @CustomerId, @ProductId, @StartDateId, @EndDateId, @BillingFrequency, @MRR, @ARR;
 
-WHILE @@FETCH_STATUS = 0
+WHILE @@FETCH_STATUS = 0 AND @InvoiceId <= @MaxInvoices
 BEGIN
     DECLARE @CurrentDateId INT;
     DECLARE @EndBillingDateId INT;
@@ -47,7 +55,7 @@ BEGIN
         FROM dbo.dim_date 
         WHERE [date] = CAST(GETDATE() AS DATE);
 
-    WHILE @CurrentDateId <= @EndBillingDateId
+    WHILE @CurrentDateId <= @EndBillingDateId AND @InvoiceId <= @MaxInvoices
     BEGIN
         DECLARE @InvoiceDateId INT = @CurrentDateId;
         DECLARE @DueDateId INT;
