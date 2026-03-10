@@ -43,3 +43,20 @@ CREATE TABLE dbo.dim_product (
     base_monthly_price DECIMAL(10,2) NOT NULL
 );
 GO
+
+-- Fact: fact_invoices
+-- Grain: one row per invoice issued to a customer
+CREATE TABLE dbo.fact_invoices (
+    invoice_id       INT           NOT NULL PRIMARY KEY,
+    customer_id      INT           NOT NULL,   -- FK to dim_customer
+    product_id       INT           NOT NULL,   -- FK to dim_product
+    invoice_date_id  INT           NOT NULL,   -- FK to dim_date (invoice date)
+    due_date_id      INT           NOT NULL,   -- FK to dim_date (due date)
+    paid_date_id     INT           NULL,       -- FK to dim_date (actual payment date)
+    invoice_amount   DECIMAL(12,2) NOT NULL,   -- total invoiced amount (before tax or incl tax per your choice)
+    cost_amount      DECIMAL(12,2) NOT NULL,   -- allocated cost for this invoice
+    tax_amount       DECIMAL(12,2) NOT NULL,   -- tax component
+    currency         VARCHAR(10)   NOT NULL,   -- e.g., USD, EUR
+    status           VARCHAR(20)   NOT NULL    -- e.g., Paid, Unpaid, Overdue, Written-off
+);
+GO
