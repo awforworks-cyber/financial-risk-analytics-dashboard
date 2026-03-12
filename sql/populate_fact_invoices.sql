@@ -1,18 +1,18 @@
 -- populate_fact_invoices.sql
 -- Populates fact_invoices with synthetic invoice records based on subscriptions
 -- NOTE:
--- The current database contains ~481k invoice rows because an earlier version
+-- The current database previously contained ~481k invoice rows because an earlier version
 -- of this script did not enforce a hard cap on generated invoices.
--- A cap of 200k (@MaxInvoices) is now in place to ensure faster reruns and
+-- A cap (@MaxInvoices) is now in place to ensure faster reruns and
 -- to keep the script suitable for demo and teaching purposes.
--- The existing larger dataset is retained intentionally for more realistic
--- performance testing and analysis.
+-- This prevents any single month (e.g., Feb 2026) from having hundreds of thousands
+-- of invoices and dominating the analysis.
 
 -- Clear existing data
 TRUNCATE TABLE dbo.fact_invoices;
 
-DECLARE @InvoiceId    INT = 1;
-DECLARE @MaxInvoices  INT = 200000;  -- hard cap to prevent runaway inserts
+DECLARE @InvoiceId INT = 1;
+DECLARE @MaxInvoices INT = 50000; -- hard cap to prevent runaway inserts and keep volume realistic
 
 -- Cursor over subscriptions
 DECLARE subscription_cursor CURSOR FAST_FORWARD FOR
@@ -91,8 +91,8 @@ BEGIN
             SELECT TOP 1 @PaidDateId = date_id
             FROM dbo.dim_date
             WHERE [date] BETWEEN
-                  (SELECT [date] FROM dbo.dim_date WHERE date_id = @InvoiceDateId)
-              AND (SELECT [date] FROM dbo.dim_date WHERE date_id = @DueDateId)
+                (SELECT [date] FROM dbo.dim_date WHERE date_id = @InvoiceDateId)
+                AND (SELECT [date] FROM dbo.dim_date WHERE date_id = @DueDateId)
             ORDER BY NEWID();
 
             SET @Status = 'Paid';
@@ -103,8 +103,8 @@ BEGIN
             SELECT TOP 1 @PaidDateId = date_id
             FROM dbo.dim_date
             WHERE [date] >
-                  (SELECT [date] FROM dbo.dim_date WHERE date_id = @DueDateId)
-              AND [date] <= GETDATE()
+                (SELECT [date] FROM dbo.dim_date WHERE date_id = @DueDateId)
+                AND [date] <= GETDATE()
             ORDER BY NEWID();
 
             SET @Status = 'Paid';
@@ -156,7 +156,7 @@ BEGIN
             SELECT TOP 1 @CurrentDateId = date_id
             FROM dbo.dim_date
             WHERE [date] >
-                  (SELECT [date] FROM dbo.dim_date WHERE date_id = @CurrentDateId)
+                (SELECT [date] FROM dbo.dim_date WHERE date_id = @CurrentDateId)
             ORDER BY [date];
         END
         ELSE
