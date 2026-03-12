@@ -1,18 +1,16 @@
--- populate_fact_invoices.sql
--- Populates fact_invoices with synthetic invoice records based on subscriptions
 -- NOTE:
--- The current database previously contained ~481k invoice rows because an earlier version
--- of this script did not enforce a hard cap on generated invoices.
--- A cap (@MaxInvoices) is now in place to ensure faster reruns and
--- to keep the script suitable for demo and teaching purposes.
--- This prevents any single month (e.g., Feb 2026) from having hundreds of thousands
--- of invoices and dominating the analysis.
+-- Earlier versions of this script could generate hundreds of thousands of invoices,
+-- which caused unrealistic monthly spikes (e.g., Feb 2026 dominating total revenue).
+-- A lower cap of 10,000 invoices (@MaxInvoices) is now used to:
+--   - Keep the synthetic SaaS data volume in the “tens of thousands” range,
+--   - Ensure month-to-month revenue trends remain realistic and interpretable,
+--   - Make reruns fast and the dataset easy to work with for demos and portfolio review.
 
 -- Clear existing data
 TRUNCATE TABLE dbo.fact_invoices;
 
 DECLARE @InvoiceId INT = 1;
-DECLARE @MaxInvoices INT = 50000; -- hard cap to prevent runaway inserts and keep volume realistic
+DECLARE @MaxInvoices INT = 10000; -- hard cap to prevent runaway inserts and keep volume realistic
 
 -- Cursor over subscriptions
 DECLARE subscription_cursor CURSOR FAST_FORWARD FOR
