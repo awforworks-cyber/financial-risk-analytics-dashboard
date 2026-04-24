@@ -1,0 +1,11 @@
+customer_id,customer_name,segment,industry,region,total_revenue,revenue_share
+19,Customer_19,Small,Tech,North America,175319.0,0.18837
+5,Customer_5,Small,Manufacturing,Europe,116071.0,0.124711
+15,Customer_15,Small,Manufacturing,APAC,85241.0,0.091586
+12,Customer_12,Small,Finance,APAC,78368.0,0.084202
+22,Customer_22,Small,Finance,North America,75735.0,0.081373
+4,Customer_4,Small,Tech,North America,69300.0,0.074458
+29,Customer_29,Small,Tech,Europe,60984.0,0.065523
+3,Customer_3,Small,Retail,APAC,44835.0,0.048172
+24,Customer_24,Small,Tech,APAC,36701.0,0.039433
+27,Customer_27,Small,Finance,APAC,32536.0,0.034958
